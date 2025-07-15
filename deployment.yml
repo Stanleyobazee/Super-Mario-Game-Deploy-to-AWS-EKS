@@ -1,0 +1,19 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: super-mario-game
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: super-mario-game
+  template:
+    metadata:
+      labels:
+        app: super-mario-game
+    spec:
+      containers:
+        - name: super-mario-game
+          image: sevenajay/mario:v1
+          ports:
+            - containerPort: 80
