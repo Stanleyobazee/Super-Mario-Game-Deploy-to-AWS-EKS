@@ -1,16 +1,4 @@
-terraform {
-  required_version = ">= 1.0"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-}
 
-provider "aws" {
-  region = var.aws_region
-}
 
 
 data "aws_availability_zones" "available" {
@@ -116,6 +104,9 @@ resource "aws_eks_cluster" "main" {
     subnet_ids = aws_subnet.public[*].id
   }
   depends_on = [aws_iam_role_policy_attachment.eks_cluster_policy]
+  tags = {
+    Name = "${var.project_name}-cluster"
+  }
 }
 
 
