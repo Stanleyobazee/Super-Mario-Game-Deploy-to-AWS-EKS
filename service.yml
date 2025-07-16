@@ -1,12 +1,12 @@
 apiVersion: v1
-kind: service
+kind: Service
 metadata:
-  name: super-mario-game
+  name: mario-service
 spec:
   type: LoadBalancer
   selector:
-    app: mario
-  prots:
-    - protocol: Tcp
+    app: super-mario-game
+  ports:
+    - protocol: TCP
       port: 80
-      targetport: 80
+      targetPort: 80
