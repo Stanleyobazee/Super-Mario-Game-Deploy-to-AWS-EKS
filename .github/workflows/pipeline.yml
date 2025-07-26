@@ -39,7 +39,13 @@ jobs:
 
       - name: Terraform Apply
         working-directory: ./EKS-TF
-        run: terraform apply -auto-approve
+        run: |
+          terraform apply -auto-approve || {
+            echo "Apply failed, trying to import existing resources..."
+            terraform import aws_iam_role.eks_cluster eks-super-mario-game-eks-cluster-role || true
+            terraform import aws_iam_role.eks_node_group eks-super-mario-game-eks-node-group-role || true
+            terraform apply -auto-approve
+          }
 
   deploy:
     name: Deploy Application

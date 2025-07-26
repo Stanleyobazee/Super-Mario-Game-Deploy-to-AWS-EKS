@@ -49,8 +49,12 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
+resource "random_id" "cluster_suffix" {
+  byte_length = 4
+}
+
 resource "aws_iam_role" "eks_cluster" {
-  name = "${var.project_name}-eks-cluster-role"
+  name = "${var.project_name}-eks-cluster-role-${random_id.cluster_suffix.hex}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -68,8 +72,12 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
   role       = aws_iam_role.eks_cluster.name
 }
 
+resource "random_id" "node_suffix" {
+  byte_length = 4
+}
+
 resource "aws_iam_role" "eks_node_group" {
-  name = "${var.project_name}-eks-node-group-role"
+  name = "${var.project_name}-eks-node-group-role-${random_id.node_suffix.hex}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
