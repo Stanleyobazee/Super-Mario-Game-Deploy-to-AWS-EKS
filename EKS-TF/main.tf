@@ -105,8 +105,12 @@ resource "aws_iam_role_policy_attachment" "eks_container_registry_policy" {
   role       = aws_iam_role.eks_node_group.name
 }
 
+resource "random_id" "cluster_name_suffix" {
+  byte_length = 4
+}
+
 resource "aws_eks_cluster" "main" {
-  name     = "${var.project_name}-cluster"
+  name     = "${var.project_name}-cluster-${random_id.cluster_name_suffix.hex}"
   role_arn = aws_iam_role.eks_cluster.arn
   vpc_config {
     subnet_ids = aws_subnet.public[*].id

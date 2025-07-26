@@ -7,7 +7,6 @@ on:
 
 env:
   AWS_REGION: eu-north-1
-  EKS_CLUSTER_NAME: eks-super-mario-game-cluster
 
 jobs:
   terraform:
@@ -37,15 +36,14 @@ jobs:
         working-directory: ./EKS-TF
         run: terraform plan
 
+      - name: Terraform Destroy (cleanup)
+        working-directory: ./EKS-TF
+        run: terraform destroy -auto-approve || true
+        continue-on-error: true
+
       - name: Terraform Apply
         working-directory: ./EKS-TF
-        run: |
-          terraform apply -auto-approve || {
-            echo "Apply failed, trying to import existing resources..."
-            terraform import aws_iam_role.eks_cluster eks-super-mario-game-eks-cluster-role || true
-            terraform import aws_iam_role.eks_node_group eks-super-mario-game-eks-node-group-role || true
-            terraform apply -auto-approve
-          }
+        run: terraform apply -auto-approve
 
   deploy:
     name: Deploy Application
@@ -62,8 +60,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Get cluster name
+        working-directory: ./EKS-TF
+        run: echo "CLUSTER_NAME=$(terraform output -raw cluster_name)" >> $GITHUB_ENV
+
       - name: Update kubeconfig
-        run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
+        run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
 
       - name: Deploy to EKS
         run: |
