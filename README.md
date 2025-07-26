@@ -17,6 +17,9 @@ This project demonstrates how to deploy a containerized Super Mario game on AWS 
 
 ```
 Super-Mario-Game-Deploy-to-AWS-EKS/
+├── .github/
+│   └── workflows/
+│       └── pipeline.yml   # GitHub Actions CI/CD pipeline
 ├── EKS-TF/                 # Terraform configuration
 │   ├── main.tf            # Main infrastructure resources
 │   ├── provider.tf        # AWS provider configuration
@@ -36,42 +39,62 @@ Super-Mario-Game-Deploy-to-AWS-EKS/
 - kubectl
 - Docker (optional, for local testing)
 
-## 📋 Quick Setup
+## 📋 Deployment Options
 
-### 1. Install Required Tools
-```bash
-chmod +x scripts.sh
-./scripts.sh
-```
+### Option 1: GitHub Actions (Automated)
 
-### 2. Configure AWS Credentials
-```bash
-aws configure
-```
+1. **Setup GitHub Secrets**
+   - Go to repository Settings → Secrets and variables → Actions
+   - Add `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
 
-### 3. Deploy Infrastructure
-```bash
-cd EKS-TF
-terraform init
-terraform plan
-terraform apply
-```
+2. **Deploy via GitHub Actions**
+   ```bash
+   git push origin main
+   ```
+   Or manually trigger from GitHub Actions tab
 
-### 4. Configure kubectl
-```bash
-aws eks update-kubeconfig --region eu-north-1 --name eks-super-mario-game-cluster
-```
+3. **Get External URL**
+   ```bash
+   aws eks update-kubeconfig --region eu-north-1 --name eks-super-mario-game-cluster
+   kubectl get service mario-service
+   ```
 
-### 5. Deploy Application
-```bash
-kubectl apply -f deployment.yml
-kubectl apply -f service.yml
-```
+### Option 2: Manual Deployment
 
-### 6. Get External URL
-```bash
-kubectl get service mario-service
-```
+1. **Install Required Tools**
+   ```bash
+   chmod +x scripts.sh
+   ./scripts.sh
+   ```
+
+2. **Configure AWS Credentials**
+   ```bash
+   aws configure
+   ```
+
+3. **Deploy Infrastructure**
+   ```bash
+   cd EKS-TF
+   terraform init
+   terraform plan
+   terraform apply
+   ```
+
+4. **Configure kubectl**
+   ```bash
+   aws eks update-kubeconfig --region eu-north-1 --name eks-super-mario-game-cluster
+   ```
+
+5. **Deploy Application**
+   ```bash
+   kubectl apply -f deployment.yml
+   kubectl apply -f service.yml
+   ```
+
+6. **Get External URL**
+   ```bash
+   kubectl get service mario-service
+   ```
 
 ## 🔧 Configuration Details
 
@@ -84,7 +107,7 @@ kubectl get service mario-service
 ### Kubernetes Resources
 - **Deployment**: 2 replicas of Super Mario game
 - **Service**: LoadBalancer type for external access
-- **Container Image**: `sevenajay/mario:v1`
+- **Container Image**: `docker.io/sevenajay/mario:latest`
 
 ## 🎯 Access the Game
 
@@ -115,9 +138,18 @@ Screenshots of the deployment process and running game are stored in the `screen
 
 ### Common Issues
 
-1. **ImagePullBackOff**: Check if the container image exists and is accessible
-2. **Service not accessible**: Verify security groups and LoadBalancer configuration
+1. **ImagePullBackOff**: 
+   - Original image `sevenajay/mario:v1` may not exist
+   - Updated to use `docker.io/sevenajay/mario:latest`
+   - Alternative: `kaminskypavel/mario`
+
+2. **Service not accessible**: 
+   - Wait 5-10 minutes for LoadBalancer provisioning
+   - Verify security groups and LoadBalancer configuration
+
 3. **Terraform errors**: Ensure AWS credentials and permissions are correct
+
+4. **GitHub Actions failures**: Check repository secrets are properly configured
 
 ### Useful Commands
 ```bash
